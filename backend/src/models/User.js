@@ -15,6 +15,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  avatar_url: {
+    type: String,
+  },
+  bio: {
+    type: String,
+    maxlength: 240,
+  },
+  theme_preference: {
+    type: String,
+    enum: ['light', 'dark'],
+    default: 'light',
+  },
   created_at: {
     type: Date,
     default: Date.now,

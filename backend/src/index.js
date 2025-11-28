@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import './db.js'; // Initialize MongoDB connection
 import authRoutes from './routes/auth.js';
 import habitsRoutes from './routes/habits.js';
+import userRoutes from './routes/user.js';
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/habits', habitsRoutes);
+app.use('/api/user', userRoutes);
 
 app.get('/', (req, res) => res.send({ ok: true, msg: 'HabitDash API' }));
 

@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../lib/api.js';
 
+const dayOptions = [
+  { value: 'mon', label: 'Mon' },
+  { value: 'tue', label: 'Tue' },
+  { value: 'wed', label: 'Wed' },
+  { value: 'thu', label: 'Thu' },
+  { value: 'fri', label: 'Fri' },
+  { value: 'sat', label: 'Sat' },
+  { value: 'sun', label: 'Sun' },
+];
+
 export default function HabitModal({ habit, isOpen, onClose, onSuccess }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [frequency, setFrequency] = useState('daily');
   const [color, setColor] = useState('#6366f1');
+  const [scheduleDays, setScheduleDays] = useState([]);
+  const [reminderTime, setReminderTime] = useState('');
   const [loading, setLoading] = useState(false);
 
   const colors = [
@@ -23,13 +35,23 @@ export default function HabitModal({ habit, isOpen, onClose, onSuccess }) {
       setDescription(habit.description || '');
       setFrequency(habit.frequency || 'daily');
       setColor(habit.color || '#6366f1');
+      setScheduleDays(habit.schedule_days || []);
+      setReminderTime(habit.reminder_time || '');
     } else {
       setTitle('');
       setDescription('');
       setFrequency('daily');
       setColor('#6366f1');
+      setScheduleDays([]);
+      setReminderTime('');
     }
   }, [habit, isOpen]);
+
+  function toggleDay(day) {
+    setScheduleDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -38,19 +60,26 @@ export default function HabitModal({ habit, isOpen, onClose, onSuccess }) {
       return;
     }
 
+    const payload = {
+      title,
+      description,
+      frequency,
+      color,
+      schedule_days: scheduleDays,
+      reminder_time: reminderTime,
+    };
+
     setLoading(true);
     try {
       if (habit) {
-        // Update existing habit
         await api(`/habits/${habit.id}`, {
           method: 'PUT',
-          body: JSON.stringify({ title, description, frequency, color }),
+          body: JSON.stringify(payload),
         });
       } else {
-        // Create new habit
         await api('/habits', {
           method: 'POST',
-          body: JSON.stringify({ title, description, frequency, color }),
+          body: JSON.stringify(payload),
         });
       }
       onSuccess();
@@ -70,7 +99,9 @@ export default function HabitModal({ habit, isOpen, onClose, onSuccess }) {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{habit ? 'Edit Habit' : 'Create New Habit'}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
+          <button className="modal-close" onClick={onClose}>
+            ×
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="modal-form">
@@ -110,6 +141,35 @@ export default function HabitModal({ habit, isOpen, onClose, onSuccess }) {
             </select>
           </div>
 
+  { /* Schedule days */ }
+          <div className="form-group">
+            <label>Preferred Days</label>
+            <div className="day-picker">
+              {dayOptions.map((day) => (
+                <button
+                  key={day.value}
+                  type="button"
+                  className={`day-chip ${
+                    scheduleDays.includes(day.value) ? 'day-chip-active' : ''
+                  }`}
+                  onClick={() => toggleDay(day.value)}
+                >
+                  {day.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Reminder Time</label>
+            <input
+              type="time"
+              value={reminderTime}
+              onChange={(e) => setReminderTime(e.target.value)}
+              className="input"
+            />
+          </div>
+
           <div className="form-group">
             <label>Color</label>
             <div className="color-picker">
@@ -117,7 +177,9 @@ export default function HabitModal({ habit, isOpen, onClose, onSuccess }) {
                 <button
                   key={c.value}
                   type="button"
-                  className={`color-option ${color === c.value ? 'color-option-active' : ''}`}
+                  className={`color-option ${
+                    color === c.value ? 'color-option-active' : ''
+                  }`}
                   style={{ backgroundColor: c.value }}
                   onClick={() => setColor(c.value)}
                   title={c.name}
