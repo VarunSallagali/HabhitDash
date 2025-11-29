@@ -108,6 +108,19 @@ Suggested captures:
 - Add a sample `.env.example` file with variable names (without secrets).
 - Add a Docker Compose file to run MongoDB + backend + frontend together.
 
+## Docker (optional)
+
+A simple `docker-compose.yml` is included to run MongoDB and the backend for local testing. It assumes a `Dockerfile` exists in `backend/` to build the backend image. To run the compose stack:
+
+```bat
+cd /d D:\Users\HP\Desktop\Projects\HabhitDash
+docker compose up --build
+```
+
+Notes:
+- The compose file exposes MongoDB on `27017` and the backend on `5000`.
+- Copy `backend/.env.example` to `backend/.env` and fill in secrets before starting the backend.
+
 ---
 
 If you want, I can:

@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo:6.0
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.example
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+
+volumes:
+  mongo-data:
+
+# Notes:
+# - This compose file exposes MongoDB on 27017 and the backend on 5000.
+# - You may need to add a Dockerfile in `backend/` to build the backend image.
